@@ -3,8 +3,8 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'ArduPilot ref (master or a tag)'
-        default: 'master'
+        description: 'master, ArduPilot-4.7, or a tag like Copter-4.7.1'
+        default: 'ArduPilot-4.7'
       vehicle:
         description: 'copter / plane / rover'
         default: 'copter'
@@ -44,5 +44,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: radix2hd-${{ inputs.vehicle }}-${{ inputs.ref }}
-
           path: out/
+
