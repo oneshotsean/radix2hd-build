@@ -1,0 +1,47 @@
+name: Build RADIX2HD
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'ArduPilot ref (master or a tag)'
+        default: 'master'
+      vehicle:
+        description: 'copter / plane / rover'
+        default: 'copter'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    container: ardupilot/ardupilot-dev-chibios:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ArduPilot/ardupilot
+          ref: ${{ inputs.ref }}
+          submodules: recursive
+          path: ardupilot
+
+      - name: Install BrainFPV packer
+        run: pip3 install https://github.com/BrainFPV/brainfpv_fw_packer/archive/main.zip
+
+      - name: Build
+        working-directory: ardupilot
+        run: |
+          git config --global --add safe.directory '*'
+          ./waf configure --board RADIX2HD
+          ./waf ${{ inputs.vehicle }}
+
+      - name: Pack and collect
+        working-directory: ardupilot
+        run: |
+          ./libraries/AP_HAL_ChibiOS/hwdef/RADIX2HD/pack_firmware.sh ${{ inputs.vehicle }}
+          mkdir -p ../out
+          find . -name '*brainfpv*.bin' -exec cp {} ../out/ \;
+          cp build/RADIX2HD/bin/*.elf ../out/ || true
+          ls -la ../out
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: radix2hd-${{ inputs.vehicle }}
+          path: out/
