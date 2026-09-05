@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-22.04
     container: ardupilot/ardupilot-dev-chibios:latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          repository: ArduPilot/ardupilot
-          ref: ${{ inputs.ref }}
-          submodules: recursive
-          path: ardupilot
+      - name: Checkout ArduPilot
+        run: |
+          git config --global --add safe.directory '*'
+          git clone --depth 1 --branch "${{ inputs.ref }}" \
+            --recurse-submodules --shallow-submodules \
+            https://github.com/ArduPilot/ardupilot.git ardupilot
 
       - name: Install BrainFPV packer
         run: pip3 install https://github.com/BrainFPV/brainfpv_fw_packer/archive/main.zip
@@ -27,7 +27,6 @@ jobs:
       - name: Build
         working-directory: ardupilot
         run: |
-          git config --global --add safe.directory '*'
           ./waf configure --board RADIX2HD
           ./waf ${{ inputs.vehicle }}
 
@@ -45,4 +44,3 @@ jobs:
         with:
           name: radix2hd-${{ inputs.vehicle }}-${{ inputs.ref }}
           path: out/
-
