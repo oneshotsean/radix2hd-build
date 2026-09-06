@@ -13,11 +13,18 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     container: ardupilot/ardupilot-dev-chibios:latest
+    env:
+      REF: ${{ inputs.ref }}
+      VEHICLE: ${{ inputs.vehicle }}
     steps:
+      - name: Set safe version string
+        run: |
+          echo "SAFE_VERSION=$(echo "$REF" | tr -c 'A-Za-z0-9._-' '_')" >> "$GITHUB_ENV"
+
       - name: Checkout ArduPilot
         run: |
           git config --global --add safe.directory '*'
-          git clone --depth 1 --branch "${{ inputs.ref }}" \
+          git clone --depth 1 --branch "$REF" \
             --recurse-submodules --shallow-submodules \
             https://github.com/ArduPilot/ardupilot.git ardupilot
 
@@ -28,19 +35,38 @@ jobs:
         working-directory: ardupilot
         run: |
           ./waf configure --board RADIX2HD
-          ./waf ${{ inputs.vehicle }}
+          ./waf "$VEHICLE"
 
       - name: Pack and collect
         working-directory: ardupilot
         run: |
-          ./libraries/AP_HAL_ChibiOS/hwdef/RADIX2HD/pack_firmware.sh ${{ inputs.vehicle }}
+          # NOTE: we don't use the upstream pack_firmware.sh here because it derives
+          # the firmware version from `git describe HEAD`, which fails on our shallow
+          # clone (no reachable annotated tags). The resulting git error text then gets
+          # word-split into the packer's argv and is parsed as a bogus option
+          # (e.g. "--tags."), which aborts brainfpv_fw_packer.py and breaks every build.
+          BIN_DIR=build/RADIX2HD/bin
+          FW_ELF="${BIN_DIR}/ardu${VEHICLE}"
+          FW_HEX="${BIN_DIR}/ardu${VEHICLE}.hex"
+          FW_PACKED="${BIN_DIR}/ardu${VEHICLE}_${SAFE_VERSION}_brainfpv.bin"
+          SHA1=$(git rev-parse HEAD)
+
+          arm-none-eabi-objcopy -O ihex "${FW_ELF}" "${FW_HEX}"
+
+          brainfpv_fw_packer.py \
+            --name "ardu${VEHICLE}" \
+            --version "${SAFE_VERSION}" \
+            --sha1 "${SHA1}" \
+            --in "${FW_HEX}" --out "${FW_PACKED}" \
+            --dev radix2hd -t firmware -b 0x90400000 -z --noheader
+
           mkdir -p ../out
-          find . -name '*brainfpv*.bin' -exec cp {} ../out/ \;
-          cp build/RADIX2HD/bin/*.elf ../out/ || true
+          cp "${FW_PACKED}" ../out/
+          cp "${BIN_DIR}"/*.elf ../out/ || true
           ls -la ../out
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: radix2hd-${{ inputs.vehicle }}-${{ inputs.ref }}
+          name: radix2hd-${{ inputs.vehicle }}-${{ env.SAFE_VERSION }}
           path: out/
