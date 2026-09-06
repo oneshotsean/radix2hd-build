@@ -62,7 +62,7 @@ jobs:
 
           mkdir -p ../out
           cp "${FW_PACKED}" ../out/
-          cp "${BIN_DIR}"/*.elf ../out/ || true
+          cp "${FW_ELF}" "../out/ardu${VEHICLE}.elf" || true
           ls -la ../out
 
       - name: Upload
