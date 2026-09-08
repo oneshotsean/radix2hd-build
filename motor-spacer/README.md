@@ -1,38 +1,42 @@
-# 2 mm motor spacer (16 × 16 mm bolt pattern, PETG-CF)
+# 2 mm motor spacer (Ø19.63 mm bolt circle, PETG-CF)
 
-**Print this file:** [`motor_spacer_16x16_2mm.stl`](motor_spacer_16x16_2mm.stl) — four of them, one per
-motor. Shape preview: [`motor_spacer_16x16_2mm.svg`](motor_spacer_16x16_2mm.svg).
+**Print this file:** [`motor_spacer_v2_2mm.stl`](motor_spacer_v2_2mm.stl) — four of them, one per
+motor. Shape preview: [`motor_spacer_v2_2mm.svg`](motor_spacer_v2_2mm.svg).
 
-![top view](motor_spacer_16x16_2mm.svg)
+![top view](motor_spacer_v2_2mm.svg)
+
+The hole positions here come from a measured correction off a printed part that was test-fitted on
+the motor, not from a caliper reading of the motor itself. The previous revision's holes sat 1.5 mm
+too far out; every hole has been moved 1.5 mm straight in toward the centre.
 
 ## Dimensions
 
 | | |
 |---|---|
 | Thickness | **2.00 mm** |
-| Bolt pattern | **16.00 mm** between adjacent holes, 22.63 mm across the diagonal |
-| Screw holes | **Ø3.40 mm** (ISO 273 medium clearance for M3) |
+| Bolt circle | **Ø19.6274 mm** — 13.879 mm between adjacent holes |
+| Hole centres | (±6.9393, ±6.9393) mm from the centre |
+| Screw holes | Ø3.40 mm (ISO 273 medium clearance for M3) |
 | Bosses around the screws | Ø7.50 mm, 2.05 mm of material around each hole |
-| Open centre | **Ø8.40 mm** — clears an 8 mm boss with 0.2 mm of radial slack |
+| Open centre | Ø8.40 mm — clears an 8 mm boss with 0.2 mm of radial slack |
 | Waist (across the flats) | 14.40 mm |
-| Max size | 30.13 mm pad-to-pad; sits inside a 23.5 × 23.5 mm square |
-| Material used | ~0.58 cm³ ≈ 0.74 g of PETG each |
+| Max size | 27.13 mm pad-to-pad; sits inside a 21.38 × 21.38 mm square |
+| Material used | ~0.50 cm³ ≈ 0.64 g of PETG each |
 
-The bore is 8.4 rather than a dead-on 8.0 because FDM holes come out slightly undersize and a hole
-printed at exactly the boss diameter is an interference fit. 0.2 mm of radial slack slips over an
-8 mm boss while still being close enough to help centre the spacer as you start the screws.
+### Checking it before you print four
+
+Measure the diagonal between two opposite holes on the printed part, centre to centre: it should be
+**19.63 mm**, against 22.63 mm on the previous revision. Adjacent holes should read 13.88 mm.
 
 ## Shape
 
-The outline follows the motor's own mounting flange: four bosses on the bolt circle, joined by
-concave scalloped webs, centre open, four open windows between the arms. It covers little more than
-the motor's own flange already covers.
+Four bosses on the bolt circle joined by concave scalloped webs, centre open, four open windows
+between the arms — so the spacer covers little more than the motor's own mounting flange.
 
 ## Before you print four
 
 **Screw length.** A 2 mm spacer puts your motor screws 2 mm deeper into the motor. Go 2 mm longer
-than stock and check they don't bottom out on the windings — that's the usual way a motor gets
-killed after a spacer is fitted.
+than stock and check they don't bottom out on the windings.
 
 ## Print settings
 
@@ -40,17 +44,14 @@ killed after a spacer is fitted.
 path out of the stator. PLA's glass transition is ~55–60 °C and carbon fill doesn't move it; a motor
 under load sits past that. Once it softens it creeps, the spacer thins under the screw heads,
 preload drops, and the motor screws back themselves out in flight. PETG's ~80 °C Tg stays clear.
-Plain PETG is ~95 % as good here.
 
 - Flat on the bed, no supports.
-- **0.2 mm layers with a 0.2 mm first layer** → 10 layers, exactly 2.00 mm. For a 0.12 mm profile,
-  keep the first layer at 0.2 mm (0.2 + 15 × 0.12 = 2.00); a 0.12 first layer gives 16.67 layers and
-  the slicer rounds you to 1.92 or 2.04.
-- **4 perimeters, 100 % infill.** Solid is what you want under a screw head.
+- **0.2 mm layers with a 0.2 mm first layer** → 10 layers, exactly 2.00 mm. For a 0.12 mm profile
+  keep the first layer at 0.2 mm (0.2 + 15 × 0.12 = 2.00).
+- **4 perimeters, 100 % infill.**
 - 240–255 °C, bed 80 °C, hardened nozzle, dry filament.
-- Add 0.2 mm elephant-foot compensation if your first layer squishes wide, so the bottoms of the
-  screw holes don't close up.
-- Print all four in one batch on the same settings — mismatched spacers tilt the motors slightly.
+- Add 0.2 mm elephant-foot compensation if your first layer squishes wide.
+- Print all four in one batch on the same settings.
 
 ## Regenerating with different numbers
 
@@ -59,12 +60,10 @@ and the SVG preview, and verifies every mesh it produces is watertight.
 
 ```sh
 # the file above
-python3 generate_spacer.py --pattern 16 --bore-d 8.4 --screw-d 3.4
+python3 generate_spacer.py --pattern 19.6274 --diagonal --bore-d 8.4 --screw-d 3.4
 
-python3 generate_spacer.py --pattern 16 --bore-d 8.4 --screw-d 3.4 --thickness 3   # 3 mm
-python3 generate_spacer.py --pattern 16 --bore-d 12.4 --screw-d 3.4               # bigger boss
-python3 generate_spacer.py --pattern 19 --diagonal --bore-d 9.0                   # Ø19 bolt circle
-python3 generate_spacer.py --help
+# to nudge the holes again: change the --pattern number by 2x the radial move you want,
+# e.g. another 0.5 mm in per hole -> --pattern 18.6274
 ```
 
 `--pattern` is the spacing between **adjacent** holes; `--diagonal` makes it the distance between
