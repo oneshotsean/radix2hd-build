@@ -1,43 +1,32 @@
-# 2 mm motor spacer (Ø19 mm bolt circle, PETG-CF)
+# 2 mm motor spacer (16 × 16 mm bolt pattern, PETG-CF)
 
-**Print this file:** [`motor_spacer_19mm-bcd_2mm.stl`](motor_spacer_19mm-bcd_2mm.stl) — four of them,
-one per motor. Shape preview: [`motor_spacer_19mm-bcd_2mm.svg`](motor_spacer_19mm-bcd_2mm.svg).
+**Print this file:** [`motor_spacer_16x16_2mm.stl`](motor_spacer_16x16_2mm.stl) — four of them, one per
+motor. Shape preview: [`motor_spacer_16x16_2mm.svg`](motor_spacer_16x16_2mm.svg).
 
-![top view](motor_spacer_19mm-bcd_2mm.svg)
+![top view](motor_spacer_16x16_2mm.svg)
 
 ## Dimensions
 
 | | |
 |---|---|
 | Thickness | **2.00 mm** |
-| Bolt circle | **Ø19.00 mm** — 13.44 mm between adjacent holes, 19.00 mm across opposite |
-| Screw holes | **Ø3.70 mm** — deliberately oversized, see below |
-| Bosses around the screws | Ø7.50 mm, 1.90 mm of material around each hole |
-| Open centre | **Ø9.00 mm** — clears an 8 mm boss with 0.5 mm of radial slack |
-| Waist (across the flats) | 15.00 mm |
-| Max size | 26.50 mm pad-to-pad; sits inside a 20.94 × 20.94 mm square |
-| Material used | ~0.47 cm³ ≈ 0.60 g of PETG each |
+| Bolt pattern | **16.00 mm** between adjacent holes, 22.63 mm across the diagonal |
+| Screw holes | **Ø3.40 mm** (ISO 273 medium clearance for M3) |
+| Bosses around the screws | Ø7.50 mm, 2.05 mm of material around each hole |
+| Open centre | **Ø8.40 mm** — clears an 8 mm boss with 0.2 mm of radial slack |
+| Waist (across the flats) | 14.40 mm |
+| Max size | 30.13 mm pad-to-pad; sits inside a 23.5 × 23.5 mm square |
+| Material used | ~0.58 cm³ ≈ 0.74 g of PETG each |
 
-### Why the screw holes are Ø3.7 and not Ø3.3
-
-The two numbers measured off the motor don't quite agree with each other: 19.00 mm across the
-diagonal implies 13.435 mm between adjacent holes, while 13.00 mm between adjacent holes implies
-18.385 mm across. The two readings put the bolt circle radius 0.31 mm apart, and a Ø3.3 hole only
-gives an M3 screw 0.15 mm of radial slack — so building to either number risks the screws binding
-if the other one was the accurate one.
-
-Ø3.7 holes give ±0.35 mm of positional slack, which covers the full disagreement. The part is
-built on the Ø19 bolt circle (the diagonal is the more reliable measurement, and it matches how
-the XNOVA drawing dimensions the mount), and it will bolt up whichever reading turns out to be
-right. Nothing is lost: the spacer is located by four screws in shear-free compression, not by
-hole fit, and an M3 cap head still covers a Ø3.7 hole. A plain M3 washer under each head makes it
-tidier if you have them.
+The bore is 8.4 rather than a dead-on 8.0 because FDM holes come out slightly undersize and a hole
+printed at exactly the boss diameter is an interference fit. 0.2 mm of radial slack slips over an
+8 mm boss while still being close enough to help centre the spacer as you start the screws.
 
 ## Shape
 
 The outline follows the motor's own mounting flange: four bosses on the bolt circle, joined by
-concave scalloped webs, centre wide open, four open windows between the arms. It covers little
-more than the motor's own flange already covers.
+concave scalloped webs, centre open, four open windows between the arms. It covers little more than
+the motor's own flange already covers.
 
 ## Before you print four
 
@@ -55,8 +44,8 @@ Plain PETG is ~95 % as good here.
 
 - Flat on the bed, no supports.
 - **0.2 mm layers with a 0.2 mm first layer** → 10 layers, exactly 2.00 mm. For a 0.12 mm profile,
-  keep the first layer at 0.2 mm (0.2 + 15 × 0.12 = 2.00); a 0.12 first layer gives 16.67 layers
-  and the slicer rounds you to 1.92 or 2.04.
+  keep the first layer at 0.2 mm (0.2 + 15 × 0.12 = 2.00); a 0.12 first layer gives 16.67 layers and
+  the slicer rounds you to 1.92 or 2.04.
 - **4 perimeters, 100 % infill.** Solid is what you want under a screw head.
 - 240–255 °C, bed 80 °C, hardened nozzle, dry filament.
 - Add 0.2 mm elephant-foot compensation if your first layer squishes wide, so the bottoms of the
@@ -70,12 +59,11 @@ and the SVG preview, and verifies every mesh it produces is watertight.
 
 ```sh
 # the file above
-python3 generate_spacer.py --pattern 19 --diagonal --bore-d 9.0 --screw-d 3.7
+python3 generate_spacer.py --pattern 16 --bore-d 8.4 --screw-d 3.4
 
-# if the 13.00 mm adjacent reading turns out to be the accurate one
-python3 generate_spacer.py --pattern 13 --bore-d 9.0 --screw-d 3.3
-
-python3 generate_spacer.py --thickness 3        # thicker
+python3 generate_spacer.py --pattern 16 --bore-d 8.4 --screw-d 3.4 --thickness 3   # 3 mm
+python3 generate_spacer.py --pattern 16 --bore-d 12.4 --screw-d 3.4               # bigger boss
+python3 generate_spacer.py --pattern 19 --diagonal --bore-d 9.0                   # Ø19 bolt circle
 python3 generate_spacer.py --help
 ```
 
